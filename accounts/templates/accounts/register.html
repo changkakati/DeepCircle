@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load socialaccount %}
+
+{% block title %}
+  Create Account | Social
+{% endblock %}
+
+{% block content %}
+  <div class="auth-container">
+    <div class="auth-card">
+      <h1 class="auth-title">Create account</h1>
+      <p class="auth-subtitle">Join the community and start sharing.</p>
+
+      <!-- Google registration -->
+      <form method="post" action="{% provider_login_url 'google' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-block">
+          Continue with Google
+        </button>
+      </form>
+
+      <div class="auth-subtitle" style="text-align: center; margin: 20px 0;">
+        Or register with email
+      </div>
+
+      <!-- Regular registration -->
+      <form method="post" id="register-form">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="error-message">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <div class="form-field">
+          <label for="{{ form.username.id_for_label }}">Username</label>
+          {{ form.username }}
+          {% for error in form.username.errors %}
+            <div class="error-message">{{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="form-field">
+          <label for="{{ form.email.id_for_label }}">Email address</label>
+          {{ form.email }}
+          {% for error in form.email.errors %}
+            <div class="error-message">{{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="form-field">
+          <label for="{{ form.password1.id_for_label }}">Password</label>
+          {{ form.password1 }}
+          {% for error in form.password1.errors %}
+            <div class="error-message">{{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <button type="submit" class="btn btn-block">
+          Create account
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        Already have an account?
+        <a href="{% url 'accounts:login' %}">Log in</a>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("register-form");
+
+    if (!form) return;
+
+    const fields = [
+      form.querySelector('[name="username"]'),
+      form.querySelector('[name="email"]'),
+      form.querySelector('[name="password1"]')
+    ];
+
+    fields.forEach(function (field, index) {
+      if (!field) return;
+
+      field.addEventListener("keydown", function (event) {
+        if (event.key === "Enter" && index < fields.length - 1) {
+          event.preventDefault();
+          fields[index + 1].focus();
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}

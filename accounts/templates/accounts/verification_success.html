@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Email Verified | Social{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <h1 class="auth-title">Email verified!</h1>
+        <p class="auth-subtitle">
+            Your account is now active. You can log in.
+        </p>
+        <a href="{% url 'accounts:login' %}" class="btn btn-block">
+            Log in
+        </a>
+    </div>
+</div>
+{% endblock %}

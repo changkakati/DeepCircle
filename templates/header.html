@@ -1,0 +1,166 @@
+
+<header class="site-header">
+    <div class="header-inner">
+
+        <a href="{% url 'posts:feed' %}" class="brand">
+            <span class="brand-icon">S</span>
+            <span>Social</span>
+        </a>
+
+        <nav class="header-nav">
+
+            {% if request.user.is_authenticated %}
+
+                <a href="{% url 'posts:feed' %}" class="nav-link">
+                    Feed
+                </a>
+
+                <span class="user-label">
+                    {{ request.user.username }}
+                </span>
+
+                <form method="post"
+                      action="{% url 'accounts:logout' %}"
+                      class="logout-form">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-btn">
+                        Log out
+                    </button>
+                </form>
+
+            {% else %}
+
+                <a href="{% url 'accounts:login' %}" class="nav-link">
+                    Login
+                </a>
+
+                <a href="{% url 'accounts:register' %}"
+                   class="register-btn">
+                    Get started
+                </a>
+
+            {% endif %}
+
+        </nav>
+    </div>
+</header>
+
+<style>
+    .site-header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: rgba(255, 255, 255, 0.96);
+        border-bottom: 1px solid #e5e9f0;
+        backdrop-filter: blur(12px);
+    }
+
+    .header-inner {
+        width: min(1100px, 100%);
+        min-height: 68px;
+        margin: 0 auto;
+        padding: 0 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        color: #172033;
+        font-size: 21px;
+        font-weight: 800;
+        letter-spacing: -0.7px;
+        text-decoration: none;
+    }
+
+    .brand:hover {
+        text-decoration: none;
+    }
+
+    .brand-icon {
+        width: 36px;
+        height: 36px;
+        display: grid;
+        place-items: center;
+        border-radius: 11px;
+        background: #2563eb;
+        color: white;
+        font-size: 20px;
+    }
+
+    .header-nav {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .nav-link {
+        color: #526075;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .user-label {
+        color: #172033;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .register-btn {
+        padding: 9px 17px;
+        border-radius: 9px;
+        background: #2563eb;
+        color: #fff;
+        font-size: 14px;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .register-btn:hover {
+        background: #1d4ed8;
+        text-decoration: none;
+    }
+
+    .logout-form {
+        margin: 0;
+    }
+
+    .logout-btn {
+        padding: 8px 12px;
+        border: 1px solid #e5e9f0;
+        border-radius: 8px;
+        background: #fff;
+        color: #526075;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .logout-btn:hover {
+        background: #f5f7fb;
+    }
+
+    @media (max-width: 480px) {
+        .header-inner {
+            padding: 0 12px;
+            gap: 10px;
+        }
+
+        .header-nav {
+            gap: 10px;
+        }
+
+        .brand {
+            font-size: 18px;
+        }
+
+        .user-label {
+            max-width: 85px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+</style>

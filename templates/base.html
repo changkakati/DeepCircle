@@ -1,0 +1,200 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Social App{% endblock %}</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --background: #f5f7fb;
+            --surface: #ffffff;
+            --text: #172033;
+            --muted: #687386;
+            --border: #e5e9f0;
+        }
+
+        body {
+            margin: 0;
+            background: var(--background);
+            color: var(--text);
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.5;
+        }
+
+        a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        button, input, textarea {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .page-container {
+            width: min(1100px, 100%);
+            margin: 0 auto;
+            padding: 28px 20px;
+        }
+
+        .auth-container {
+            width: min(440px, 100%);
+            margin: 48px auto;
+            padding: 0 16px;
+        }
+
+        .auth-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(23, 32, 51, 0.04);
+        }
+
+        .auth-title {
+            margin: 0 0 8px;
+            font-size: 27px;
+            letter-spacing: -0.7px;
+        }
+
+        .auth-subtitle {
+            margin: 0 0 26px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .form-field {
+            margin-bottom: 18px;
+        }
+
+        .form-field label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .form-field input,
+        .form-field textarea {
+            display: block;
+            width: 100%;
+            padding: 12px 13px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            background: #fff;
+            color: var(--text);
+            outline: none;
+        }
+
+        .form-field input:focus,
+        .form-field textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 11px 20px;
+            border: 0;
+            border-radius: 9px;
+            background: var(--primary);
+            color: #fff;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: var(--primary-hover);
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .btn-block {
+            width: 100%;
+        }
+
+        .error-message {
+            margin-top: 6px;
+            color: #dc2626;
+            font-size: 13px;
+        }
+
+        .error-message ul {
+            padding-left: 20px;
+        }
+
+        .help-text {
+            margin-top: 6px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .auth-footer {
+            margin-top: 22px;
+            color: var(--muted);
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .auth-footer a {
+            font-weight: 600;
+        }
+
+        .content-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        @media (max-width: 600px) {
+            .page-container {
+                padding: 16px 12px;
+            }
+
+            .auth-container {
+                margin: 28px auto;
+                padding: 0 8px;
+            }
+
+            .auth-card {
+                padding: 22px;
+            }
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+    {% include "header.html" %}
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block extra_js %}{% endblock %}
+
+</body>
+</html>

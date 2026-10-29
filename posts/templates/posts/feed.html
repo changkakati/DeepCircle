@@ -1,0 +1,22 @@
+
+{% extends "base.html" %}
+
+{% block title %}Feed | Social{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <h1>Feed</h1>
+    <p>Welcome to your social feed!</p>
+
+    {% if user.is_authenticated %}
+        <p>Welcome, {{ user.username }}.</p>
+    {% else %}
+        <p>
+            <a href="{% url 'accounts:login' %}">Log in</a>
+            or
+            <a href="{% url 'accounts:register' %}">create an account</a>
+            to get started.
+        </p>
+    {% endif %}
+</div>
+{% endblock %}

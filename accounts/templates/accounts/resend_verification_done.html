@@ -1,0 +1,21 @@
+
+{% extends "base.html" %}
+
+{% block title %}Check Your Email | Social{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <h1 class="auth-title">Check your email</h1>
+
+        <p class="auth-subtitle">
+            If your account needs verification, a new link has been sent.
+            Check your inbox and spam folder.
+        </p>
+
+        <a href="{% url 'accounts:login' %}" class="btn btn-block">
+            Back to login
+        </a>
+    </div>
+</div>
+{% endblock %}
