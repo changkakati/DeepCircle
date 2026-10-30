@@ -1,5 +1,5 @@
-
 {% extends "base.html" %}
+{% load markdown_extras %}
 
 {% block title %}Home Feed{% endblock %}
 
@@ -323,6 +323,76 @@
             max-height: 380px;
         }
     }
+    .markdown-body {
+    font-size: 15px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+
+.markdown-body p {
+    margin-bottom: 10px;
+}
+
+.markdown-body strong {
+    font-weight: 700;
+}
+
+.markdown-body em {
+    font-style: italic;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3 {
+    font-weight: 700;
+    margin: 14px 0 8px;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+    padding-left: 24px;
+    margin: 10px 0;
+}
+
+.markdown-body ul {
+    list-style: disc;
+}
+
+.markdown-body ol {
+    list-style: decimal;
+}
+
+.markdown-body blockquote {
+    border-left: 3px solid #2563eb;
+    padding-left: 12px;
+    margin: 12px 0;
+    color: #64748b;
+}
+
+.markdown-body a {
+    color: #2563eb;
+    text-decoration: underline;
+}
+
+.markdown-body code {
+    background: #f1f5f9;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-family: monospace;
+}
+
+.markdown-body pre {
+    background: #f1f5f9;
+    padding: 12px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 10px 0;
+}
+
+.markdown-body pre code {
+    padding: 0;
+    background: transparent;
+}
 </style>
 {% endblock %}
 
@@ -331,9 +401,7 @@
 <div class="feed-container">
 
     {% if request.user.is_authenticated %}
-    <!-- Create post -->
     <section class="post-composer">
-
         <h2 style="margin-top:0;">Create a post</h2>
 
         <form method="POST"
@@ -345,47 +413,40 @@
             {{ form.body }}
 
             {% if form.body.errors %}
-                <div class="post-error">
-                    {{ form.body.errors }}
-                </div>
-            {% endif %}
-
-            {% if form.non_field_errors %}
-                <div class="post-error">
-                    {{ form.non_field_errors }}
-                </div>
+                <div class="post-error">{{ form.body.errors }}</div>
             {% endif %}
 
             {% if form.media_files.errors %}
-                <div class="post-error">
-                    {{ form.media_files.errors }}
-                </div>
+                <div class="post-error">{{ form.media_files.errors }}</div>
+            {% endif %}
+
+            {% if form.non_field_errors %}
+                <div class="post-error">{{ form.non_field_errors }}</div>
             {% endif %}
 
             <div id="media-preview" class="media-preview"></div>
 
             <div class="composer-bottom">
-
                 <div>
                     <label for="id_media_files" class="file-label">
                         📷 Add photos / videos
                     </label>
 
                     {{ form.media_files }}
-
                     <small id="file-count"></small>
                 </div>
 
                 <button type="submit" class="publish-button">
                     Publish
                 </button>
-
             </div>
-
         </form>
     </section>
-    {% endif %}
-    
+{% else %}
+    <section class="post-composer">
+        <p>Please <a href="{% url 'accounts:login' %}">log in</a> to create a post.</p>
+    </section>
+{% endif %}
 
 
     <!-- Feed posts -->
@@ -423,12 +484,14 @@
 
             </div>
 
+            
+
 
             <!-- Post text -->
             {% if post.body %}
-                <div class="post-body">
-                    {{ post.body|linebreaksbr }}
-                </div>
+                <div class="markdown-body">
+    {{ post.body|markdown }}
+</div>
             {% endif %}
 
 
@@ -487,6 +550,9 @@
                 {% endif %}
             {% endwith %}
 
+            <a href="{% url 'posts:post_detail' post.pk %}" class="view-post-link">
+    View post
+</a>
 
             <!-- Like and comment actions -->
             <div class="post-social-actions">

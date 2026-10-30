@@ -1,5 +1,6 @@
 
 {% extends "base.html" %}
+{% load markdown_extras %}
 
 {% block title %}
     {% if profile.full_name %}
@@ -357,6 +358,78 @@
         grid-template-columns: 1fr;
     }
 }
+/* MARKDOWN */
+
+.markdown-body {
+    overflow-wrap: anywhere;
+    line-height: 1.7;
+}
+
+.markdown-body p {
+    margin: 0 0 10px;
+}
+
+.markdown-body strong {
+    font-weight: 700;
+}
+
+.markdown-body em {
+    font-style: italic;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+    padding-left: 22px;
+    margin: 8px 0;
+}
+
+.markdown-body ul {
+    list-style: disc;
+}
+
+.markdown-body ol {
+    list-style: decimal;
+}
+
+.markdown-body blockquote {
+    border-left: 3px solid #4f46e5;
+    padding-left: 12px;
+    margin: 10px 0;
+    color: #6b7280;
+}
+
+.markdown-body a {
+    color: #4f46e5;
+    text-decoration: underline;
+}
+
+.markdown-body code {
+    background: #f3f4f6;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-family: monospace;
+}
+
+.markdown-body pre {
+    background: #f3f4f6;
+    padding: 10px;
+    border-radius: 7px;
+    overflow-x: auto;
+}
+
+.profile-post-preview {
+    font-size: 14px;
+    color: #374151;
+    margin-bottom: 12px;
+}
+
+.profile-post-preview h1,
+.profile-post-preview h2,
+.profile-post-preview h3 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
 </style>
 {% endblock %}
 
@@ -413,9 +486,9 @@
             <!-- BIO -->
 
             {% if profile.bio %}
-                <div class="profile-bio">
-                    {{ profile.bio|linebreaksbr }}
-                </div>
+                <div class="profile-bio markdown-body">
+        {{ profile.bio|markdown }}
+    </div>
             {% else %}
                 {% if is_own_profile %}
                     <div class="profile-bio">
@@ -541,9 +614,9 @@
                     <div class="profile-post-content">
 
                         {% if post.body %}
-                            <p>
-                                {{ post.body|truncatechars:150 }}
-                            </p>
+                            <div class="profile-post-preview markdown-body">
+        {{ post.body|truncatechars:150|markdown }}
+    </div>
                         {% endif %}
 
 

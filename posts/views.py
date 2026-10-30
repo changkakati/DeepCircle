@@ -25,6 +25,27 @@ def save_post_media(post, uploaded_files):
 
 
 def feed(request):
+    form = PostForm()
+
+    # Handle post submission
+    if request.method == "POST":
+        if not request.user.is_authenticated:
+            return redirect("accounts:login")
+
+        form = PostForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            with transaction.atomic():
+                post = form.save(commit=False)
+                post.author = request.user
+                post.save()
+
+                uploaded_files = form.cleaned_data.get("media_files", [])
+                save_post_media(post, uploaded_files)
+
+            return redirect("posts:feed")
+
+    # Get feed posts
     posts = (
         Post.objects.select_related("author")
         .prefetch_related("media", "comments", "likes")
@@ -42,6 +63,7 @@ def feed(request):
         "posts/feed.html",
         {
             "posts": posts,
+            "form": form,
         },
     )
 
