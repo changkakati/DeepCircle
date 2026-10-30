@@ -1,0 +1,299 @@
+
+{% extends "base.html" %}
+
+{% block title %}Post by {{ post.author.username }} | Social{% endblock %}
+
+{% block extra_css %}
+<style>
+.detail-wrap {
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.post-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 22px;
+}
+
+.post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.post-author {
+    font-weight: 700;
+}
+
+.post-date {
+    color: #6b7280;
+    font-size: 13px;
+    margin-top: 4px;
+}
+
+.post-body {
+    margin: 22px 0;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+
+.media-carousel {
+    position: relative;
+    overflow: hidden;
+    border-radius: 14px;
+    background: #111827;
+}
+
+.carousel-track {
+    display: flex;
+    transition: transform .35s ease;
+}
+
+.carousel-slide {
+    min-width: 100%;
+    flex: 0 0 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 250px;
+}
+
+.carousel-slide img,
+.carousel-slide video {
+    width: 100%;
+    max-height: 550px;
+    object-fit: contain;
+}
+
+.carousel-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(0,0,0,.65);
+    color: white;
+    font-size: 23px;
+    cursor: pointer;
+}
+
+.carousel-prev { left: 12px; }
+.carousel-next { right: 12px; }
+
+.carousel-arrow:disabled {
+    opacity: .35;
+}
+
+.carousel-indicators {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 7px;
+}
+
+.carousel-dot {
+    width: 8px;
+    height: 8px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255,255,255,.5);
+}
+
+.carousel-dot.active {
+    background: white;
+}
+
+.detail-actions {
+    display: flex;
+    gap: 16px;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.detail-actions a {
+    text-decoration: none;
+    color: #374151;
+}
+
+.detail-actions form {
+    margin-left: auto;
+}
+
+.delete-button {
+    border: 0;
+    background: none;
+    color: #dc2626;
+    cursor: pointer;
+    font: inherit;
+}
+
+.back-link {
+    display: inline-block;
+    margin-bottom: 16px;
+    color: #4b5563;
+    text-decoration: none;
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="detail-wrap">
+
+    <a href="{% url 'posts:feed' %}" class="back-link">
+        ← Back to feed
+    </a>
+
+    <article class="post-card">
+
+        <header class="post-header">
+            <div>
+                <div class="post-author">
+                    {{ post.author.username }}
+                </div>
+
+                <div class="post-date">
+                    {{ post.created_at|date:"M j, Y · g:i A" }}
+
+                    {% if post.updated_at != post.created_at %}
+                        · Edited
+                    {% endif %}
+                </div>
+            </div>
+        </header>
+
+        {% if post.body %}
+            <div class="post-body">
+                {{ post.body|linebreaksbr }}
+            </div>
+        {% endif %}
+
+        {% if post.media.all %}
+            <div class="media-carousel" data-carousel>
+
+                <div class="carousel-track">
+                    {% for item in post.media.all %}
+                        <div class="carousel-slide">
+
+                            {% if item.media_type == "image" %}
+                                <img
+                                    src="{{ item.file.url }}"
+                                    alt="Post image"
+                                >
+                            {% else %}
+                                <video controls preload="metadata">
+                                    <source src="{{ item.file.url }}">
+                                    Your browser does not support video playback.
+                                </video>
+                            {% endif %}
+
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <button type="button"
+                        class="carousel-arrow carousel-prev"
+                        aria-label="Previous media">‹</button>
+
+                <button type="button"
+                        class="carousel-arrow carousel-next"
+                        aria-label="Next media">›</button>
+
+                <div class="carousel-indicators"></div>
+            </div>
+        {% endif %}
+
+        <div class="detail-actions">
+
+            <a href="{% url 'posts:feed' %}">
+                Back to feed
+            </a>
+
+            {% if post.author_id == request.user.id %}
+                <a href="{% url 'posts:edit_post' post.id %}">
+                    Edit post
+                </a>
+
+                <form method="post"
+                      action="{% url 'posts:delete_post' post.id %}"
+                      onsubmit="return confirm('Delete this post permanently?');">
+                    {% csrf_token %}
+                    <button type="submit" class="delete-button">
+                        Delete
+                    </button>
+                </form>
+            {% endif %}
+
+        </div>
+
+    </article>
+</div>
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("[data-carousel]").forEach(function (carousel) {
+        const track = carousel.querySelector(".carousel-track");
+        const slides = Array.from(carousel.querySelectorAll(".carousel-slide"));
+        const prev = carousel.querySelector(".carousel-prev");
+        const next = carousel.querySelector(".carousel-next");
+        const indicators = carousel.querySelector(".carousel-indicators");
+
+        if (!track || !slides.length) return;
+
+        let index = 0;
+
+        slides.forEach(function (_, i) {
+            const dot = document.createElement("button");
+            dot.type = "button";
+            dot.className = "carousel-dot";
+            dot.setAttribute("aria-label", "Show media " + (i + 1));
+            dot.addEventListener("click", () => showSlide(i));
+            indicators.appendChild(dot);
+        });
+
+        const dots = Array.from(indicators.children);
+
+        function showSlide(i) {
+            index = Math.max(0, Math.min(i, slides.length - 1));
+            track.style.transform = `translateX(-${index * 100}%)`;
+
+            dots.forEach((dot, n) => {
+                dot.classList.toggle("active", n === index);
+            });
+
+            prev.disabled = index === 0;
+            next.disabled = index === slides.length - 1;
+
+            slides.forEach((slide, n) => {
+                if (n !== index) {
+                    const video = slide.querySelector("video");
+                    if (video) video.pause();
+                }
+            });
+        }
+
+        prev.addEventListener("click", () => showSlide(index - 1));
+        next.addEventListener("click", () => showSlide(index + 1));
+
+        if (slides.length === 1) {
+            prev.hidden = true;
+            next.hidden = true;
+            indicators.hidden = true;
+        }
+
+        showSlide(0);
+    });
+});
+</script>
+{% endblock %}

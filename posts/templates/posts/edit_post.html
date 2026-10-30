@@ -1,0 +1,205 @@
+
+{% extends "base.html" %}
+
+{% block title %}Edit Post | Social{% endblock %}
+
+{% block extra_css %}
+<style>
+.edit-wrap {
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.edit-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 22px;
+}
+
+.post-textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 13px;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    box-sizing: border-box;
+    font: inherit;
+    resize: vertical;
+}
+
+.edit-heading {
+    margin-top: 0;
+}
+
+.edit-label {
+    display: block;
+    font-weight: 600;
+    margin: 20px 0 10px;
+}
+
+.existing-media {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.media-item {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 8px;
+}
+
+.media-item img,
+.media-item video {
+    width: 100%;
+    height: 180px;
+    object-fit: contain;
+    background: #111827;
+    border-radius: 8px;
+}
+
+.remove-media {
+    display: block;
+    margin-top: 8px;
+    color: #dc2626;
+    font-size: 14px;
+}
+
+.edit-help {
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.form-errors {
+    color: #dc2626;
+    margin: 8px 0;
+}
+
+.edit-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    align-items: center;
+}
+
+.save-button {
+    border: 0;
+    border-radius: 999px;
+    padding: 11px 23px;
+    background: #111827;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.cancel-link {
+    color: #4b5563;
+    text-decoration: none;
+}
+
+@media(max-width:520px) {
+    .edit-card { padding: 15px; }
+    .existing-media { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="edit-wrap">
+
+    <div class="edit-card">
+
+        <h1 class="edit-heading">Edit post</h1>
+
+        <form method="post" enctype="multipart/form-data">
+
+            {% csrf_token %}
+
+            {{ form.body }}
+
+            {% for error in form.body.errors %}
+                <div class="form-errors">{{ error }}</div>
+            {% endfor %}
+
+            {% for error in form.media_files.errors %}
+                <div class="form-errors">{{ error }}</div>
+            {% endfor %}
+
+            {% for error in form.non_field_errors %}
+                <div class="form-errors">{{ error }}</div>
+            {% endfor %}
+
+
+            <h3 class="edit-label">Existing media</h3>
+
+            <p class="edit-help">
+                Select the files you want to remove.
+                Unchecked files will remain attached to your post.
+            </p>
+
+            <div class="existing-media">
+
+                {% for item in existing_media %}
+
+                    <div class="media-item">
+
+                        {% if item.media_type == "image" %}
+                            <img src="{{ item.file.url }}" alt="Existing post image">
+                        {% else %}
+                            <video controls preload="metadata">
+                                <source src="{{ item.file.url }}">
+                            </video>
+                        {% endif %}
+
+                        <label class="remove-media">
+                            <input
+                                type="checkbox"
+                                name="remove_media"
+                                value="{{ item.id }}"
+                            >
+                            Remove this file
+                        </label>
+
+                    </div>
+
+                {% empty %}
+
+                    <p>No existing media.</p>
+
+                {% endfor %}
+
+            </div>
+
+
+            <label class="edit-label" for="{{ form.media_files.id_for_label }}">
+                Add more photos or videos
+            </label>
+
+            {{ form.media_files }}
+
+            <p class="edit-help">
+                Maximum 10 media files in total, including existing files
+                you keep. Maximum 50 MB per file.
+            </p>
+
+            <div class="edit-actions">
+
+                <button type="submit" class="save-button">
+                    Save changes
+                </button>
+
+                <a href="{% url 'posts:post_detail' post.id %}"
+                   class="cancel-link">
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+{% endblock %}

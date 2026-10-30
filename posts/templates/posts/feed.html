@@ -1,22 +1,374 @@
 
 {% extends "base.html" %}
 
-{% block title %}Feed | Social{% endblock %}
+{% block title %}Home | Social{% endblock %}
+
+{% block extra_css %}
+<style>
+.feed-wrap {
+    max-width: 720px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.composer,
+.post-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 18px;
+}
+
+.composer h1 {
+    margin: 0 0 16px;
+}
+
+.post-textarea {
+    width: 100%;
+    min-height: 110px;
+    padding: 13px;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    resize: vertical;
+    box-sizing: border-box;
+    font: inherit;
+}
+
+.media-picker {
+    display: block;
+    margin: 14px 0;
+}
+
+.media-help {
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.post-submit {
+    background: #111827;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.post-author {
+    font-weight: 700;
+}
+
+.post-date {
+    color: #6b7280;
+    font-size: 13px;
+    margin-top: 4px;
+}
+
+.post-body {
+    margin: 16px 0;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.form-errors {
+    color: #dc2626;
+    margin: 8px 0;
+}
+
+.media-carousel {
+    position: relative;
+    overflow: hidden;
+    border-radius: 14px;
+    background: #111827;
+    margin-top: 14px;
+}
+
+.carousel-track {
+    display: flex;
+    transition: transform .35s ease;
+}
+
+.carousel-slide {
+    min-width: 100%;
+    flex: 0 0 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 220px;
+    max-height: 500px;
+}
+
+.carousel-slide img,
+.carousel-slide video {
+    width: 100%;
+    max-height: 500px;
+    object-fit: contain;
+}
+
+.carousel-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 38px;
+    height: 38px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(0,0,0,.65);
+    color: white;
+    font-size: 22px;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.carousel-prev { left: 12px; }
+.carousel-next { right: 12px; }
+
+.carousel-arrow:disabled {
+    opacity: .35;
+    cursor: default;
+}
+
+.carousel-indicators {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 7px;
+    z-index: 2;
+}
+
+.carousel-dot {
+    width: 7px;
+    height: 7px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255,255,255,.55);
+    cursor: pointer;
+}
+
+.carousel-dot.active {
+    background: white;
+    transform: scale(1.3);
+}
+
+.post-actions {
+    display: flex;
+    gap: 18px;
+    align-items: center;
+    border-top: 1px solid #e5e7eb;
+    margin-top: 16px;
+    padding-top: 12px;
+}
+
+.post-actions a,
+.post-actions button {
+    color: #4b5563;
+    text-decoration: none;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    font: inherit;
+}
+
+.empty-feed {
+    text-align: center;
+    color: #6b7280;
+    padding: 35px;
+}
+
+@media(max-width:520px) {
+    .composer, .post-card { padding: 15px; }
+    .carousel-slide { min-height: 180px; }
+    .carousel-slide img, .carousel-slide video { max-height: 350px; }
+}
+</style>
+{% endblock %}
+
 
 {% block content %}
-<div class="content-card">
-    <h1>Feed</h1>
-    <p>Welcome to your social feed!</p>
+<div class="feed-wrap">
 
-    {% if user.is_authenticated %}
-        <p>Welcome, {{ user.username }}.</p>
-    {% else %}
-        <p>
-            <a href="{% url 'accounts:login' %}">Log in</a>
-            or
-            <a href="{% url 'accounts:register' %}">create an account</a>
-            to get started.
-        </p>
-    {% endif %}
+    <section class="composer">
+        <h1>Home</h1>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            {{ form.body }}
+
+            {% for error in form.body.errors %}
+                <div class="form-errors">{{ error }}</div>
+            {% endfor %}
+
+            {% for error in form.media_files.errors %}
+                <div class="form-errors">{{ error }}</div>
+            {% endfor %}
+
+            {% for error in form.non_field_errors %}
+                <div class="form-errors">{{ error }}</div>
+            {% endfor %}
+
+            <label class="media-picker" for="{{ form.media_files.id_for_label }}">
+                <strong>Add photos or videos</strong>
+            </label>
+
+            {{ form.media_files }}
+
+            <p class="media-help">
+                Maximum 10 images/videos combined · 50 MB per file
+            </p>
+
+            <div id="media-preview" class="media-carousel"></div>
+
+            <button type="submit" class="post-submit">Post</button>
+        </form>
+    </section>
+
+
+    {% for post in posts %}
+        <article class="post-card">
+
+            <header class="post-header">
+                <div>
+                    <div class="post-author">{{ post.author.username }}</div>
+                    <div class="post-date">
+                        {{ post.created_at|date:"M j, Y · g:i A" }}
+                    </div>
+                </div>
+            </header>
+
+            {% if post.body %}
+                <div class="post-body">
+                    {{ post.body|linebreaksbr }}
+                </div>
+            {% endif %}
+
+            {% if post.media.all %}
+                <div class="media-carousel" data-carousel>
+                    <div class="carousel-track">
+                        {% for item in post.media.all %}
+                            <div class="carousel-slide">
+                                {% if item.media_type == "image" %}
+                                    <img
+                                        src="{{ item.file.url }}"
+                                        alt="Post image"
+                                        loading="lazy"
+                                    >
+                                {% else %}
+                                    <video controls preload="metadata">
+                                        <source src="{{ item.file.url }}">
+                                    </video>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <button type="button"
+                            class="carousel-arrow carousel-prev"
+                            aria-label="Previous media">‹</button>
+
+                    <button type="button"
+                            class="carousel-arrow carousel-next"
+                            aria-label="Next media">›</button>
+
+                    <div class="carousel-indicators"></div>
+                </div>
+            {% endif %}
+
+            <div class="post-actions">
+                <a href="{% url 'posts:post_detail' post.id %}">
+                    View post
+                </a>
+
+                {% if post.author_id == request.user.id %}
+                    <a href="{% url 'posts:edit_post' post.id %}">
+                        Edit
+                    </a>
+
+                    <form method="post"
+                          action="{% url 'posts:delete_post' post.id %}"
+                          onsubmit="return confirm('Delete this post permanently?');">
+                        {% csrf_token %}
+                        <button type="submit">Delete</button>
+                    </form>
+                {% endif %}
+            </div>
+
+        </article>
+    {% empty %}
+        <div class="post-card empty-feed">
+            No posts yet. Be the first to share something!
+        </div>
+    {% endfor %}
+
 </div>
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("[data-carousel]").forEach(function (carousel) {
+        const track = carousel.querySelector(".carousel-track");
+        const slides = Array.from(carousel.querySelectorAll(".carousel-slide"));
+        const prev = carousel.querySelector(".carousel-prev");
+        const next = carousel.querySelector(".carousel-next");
+        const indicators = carousel.querySelector(".carousel-indicators");
+
+        if (!track || !slides.length) return;
+
+        let index = 0;
+
+        slides.forEach(function (_, i) {
+            const dot = document.createElement("button");
+            dot.type = "button";
+            dot.className = "carousel-dot";
+            dot.setAttribute("aria-label", "Show media " + (i + 1));
+            dot.addEventListener("click", () => showSlide(i));
+            indicators.appendChild(dot);
+        });
+
+        const dots = Array.from(indicators.children);
+
+        function showSlide(i) {
+            index = Math.max(0, Math.min(i, slides.length - 1));
+            track.style.transform = `translateX(-${index * 100}%)`;
+
+            dots.forEach((dot, n) => {
+                dot.classList.toggle("active", n === index);
+            });
+
+            prev.disabled = index === 0;
+            next.disabled = index === slides.length - 1;
+
+            slides.forEach((slide, n) => {
+                if (n !== index) {
+                    const video = slide.querySelector("video");
+                    if (video) video.pause();
+                }
+            });
+        }
+
+        prev.addEventListener("click", () => showSlide(index - 1));
+        next.addEventListener("click", () => showSlide(index + 1));
+
+        if (slides.length === 1) {
+            prev.hidden = true;
+            next.hidden = true;
+            indicators.hidden = true;
+        }
+
+        showSlide(0);
+    });
+});
+</script>
 {% endblock %}
