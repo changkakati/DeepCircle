@@ -50,4 +50,17 @@ urlpatterns = [
         views.resend_verification_view,
         name="resend_verification",
     ),
+    path("profile/edit/", views.edit_profile, name="edit_profile"),
+    path("profile/links/add/", views.add_profile_link, name="add_profile_link"),
+    path(
+        "profile/links/<int:link_id>/edit/",
+        views.edit_profile_link,
+        name="edit_profile_link",
+    ),
+    path(
+        "profile/links/<int:link_id>/delete/",
+        views.delete_profile_link,
+        name="delete_profile_link",
+    ),
+    path("profile/<str:username>/", views.profile_view, name="profile"),
 ]

@@ -15,9 +15,9 @@
                     Feed
                 </a>
 
-                <span class="user-label">
-                    {{ request.user.username }}
-                </span>
+                <a href="{% url 'accounts:profile' request.user.username %}">
+    My Profile
+</a>
 
                 <form method="post"
                       action="{% url 'accounts:logout' %}"

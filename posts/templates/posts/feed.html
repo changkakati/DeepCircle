@@ -1,313 +1,564 @@
 
 {% extends "base.html" %}
 
-{% block title %}Home | Social{% endblock %}
+{% block title %}Home Feed{% endblock %}
 
 {% block extra_css %}
 <style>
-.feed-wrap {
-    max-width: 720px;
-    width: 100%;
-    margin: 0 auto;
-}
+    .feed-container {
+        max-width: 760px;
+        margin: 30px auto;
+        padding: 0 16px;
+    }
 
-.composer,
-.post-card {
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 18px;
-}
+    .post-composer,
+    .post-card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 20px;
+        margin-bottom: 22px;
+        box-shadow: 0 2px 8px rgba(0,0,0,.03);
+    }
 
-.composer h1 {
-    margin: 0 0 16px;
-}
+    .post-composer textarea {
+        width: 100%;
+        min-height: 100px;
+        padding: 13px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        resize: vertical;
+        font: inherit;
+        outline: none;
+    }
 
-.post-textarea {
-    width: 100%;
-    min-height: 110px;
-    padding: 13px;
-    border: 1px solid #d1d5db;
-    border-radius: 12px;
-    resize: vertical;
-    box-sizing: border-box;
-    font: inherit;
-}
+    .post-composer textarea:focus,
+    .comment-input:focus {
+        border-color: #2563eb;
+    }
 
-.media-picker {
-    display: block;
-    margin: 14px 0;
-}
+    .composer-bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 14px;
+    }
 
-.media-help {
-    color: #6b7280;
-    font-size: 13px;
-}
+    .file-label {
+        display: inline-block;
+        padding: 9px 14px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+    }
 
-.post-submit {
-    background: #111827;
-    color: white;
-    border: none;
-    padding: 10px 24px;
-    border-radius: 999px;
-    cursor: pointer;
-    font-weight: 600;
-}
+    .file-label:hover {
+        background: #f9fafb;
+    }
 
-.post-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-}
+    .publish-button,
+    .comment-submit {
+        background: #2563eb;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        cursor: pointer;
+        font-weight: 600;
+    }
 
-.post-author {
-    font-weight: 700;
-}
+    .publish-button:hover,
+    .comment-submit:hover {
+        background: #1d4ed8;
+    }
 
-.post-date {
-    color: #6b7280;
-    font-size: 13px;
-    margin-top: 4px;
-}
+    .media-preview {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+        gap: 10px;
+        margin-top: 14px;
+    }
 
-.post-body {
-    margin: 16px 0;
-    line-height: 1.6;
-    overflow-wrap: anywhere;
-}
+    .media-preview-item {
+        position: relative;
+    }
 
-.form-errors {
-    color: #dc2626;
-    margin: 8px 0;
-}
+    .media-preview img,
+    .media-preview video {
+        width: 100%;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
 
-.media-carousel {
-    position: relative;
-    overflow: hidden;
-    border-radius: 14px;
-    background: #111827;
-    margin-top: 14px;
-}
+    .post-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 14px;
+    }
 
-.carousel-track {
-    display: flex;
-    transition: transform .35s ease;
-}
+    .post-author {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+    }
 
-.carousel-slide {
-    min-width: 100%;
-    flex: 0 0 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 220px;
-    max-height: 500px;
-}
+    .post-avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        flex-shrink: 0;
+        overflow: hidden;
+    }
 
-.carousel-slide img,
-.carousel-slide video {
-    width: 100%;
-    max-height: 500px;
-    object-fit: contain;
-}
+    .post-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
 
-.carousel-arrow {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 38px;
-    height: 38px;
-    border: 0;
-    border-radius: 50%;
-    background: rgba(0,0,0,.65);
-    color: white;
-    font-size: 22px;
-    cursor: pointer;
-    z-index: 2;
-}
+    .post-author a {
+        color: #111827;
+        font-weight: 650;
+        text-decoration: none;
+    }
 
-.carousel-prev { left: 12px; }
-.carousel-next { right: 12px; }
+    .post-author a:hover {
+        color: #2563eb;
+    }
 
-.carousel-arrow:disabled {
-    opacity: .35;
-    cursor: default;
-}
+    .post-date {
+        display: block;
+        color: #888;
+        font-size: 12px;
+        margin-top: 3px;
+    }
 
-.carousel-indicators {
-    position: absolute;
-    bottom: 12px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 7px;
-    z-index: 2;
-}
+    .post-body {
+        white-space: normal;
+        overflow-wrap: anywhere;
+        line-height: 1.65;
+        margin: 12px 0;
+    }
 
-.carousel-dot {
-    width: 7px;
-    height: 7px;
-    padding: 0;
-    border: 0;
-    border-radius: 50%;
-    background: rgba(255,255,255,.55);
-    cursor: pointer;
-}
+    /* Media carousel */
 
-.carousel-dot.active {
-    background: white;
-    transform: scale(1.3);
-}
+    .media-carousel {
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+        border-radius: 12px;
+        background: #111;
+        margin: 14px 0;
+    }
 
-.post-actions {
-    display: flex;
-    gap: 18px;
-    align-items: center;
-    border-top: 1px solid #e5e7eb;
-    margin-top: 16px;
-    padding-top: 12px;
-}
+    .carousel-track {
+        display: flex;
+        transition: transform .35s ease;
+    }
 
-.post-actions a,
-.post-actions button {
-    color: #4b5563;
-    text-decoration: none;
-    border: 0;
-    background: none;
-    cursor: pointer;
-    font: inherit;
-}
+    .carousel-slide {
+        min-width: 100%;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #111;
+    }
 
-.empty-feed {
-    text-align: center;
-    color: #6b7280;
-    padding: 35px;
-}
+    .carousel-slide img,
+    .carousel-slide video {
+        width: 100%;
+        max-height: 520px;
+        object-fit: contain;
+        display: block;
+    }
 
-@media(max-width:520px) {
-    .composer, .post-card { padding: 15px; }
-    .carousel-slide { min-height: 180px; }
-    .carousel-slide img, .carousel-slide video { max-height: 350px; }
-}
+    .carousel-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 36px;
+        height: 36px;
+        border: none;
+        border-radius: 50%;
+        background: rgba(0,0,0,.55);
+        color: white;
+        cursor: pointer;
+        z-index: 2;
+        font-size: 22px;
+    }
+
+    .carousel-prev { left: 10px; }
+    .carousel-next { right: 10px; }
+
+    .carousel-arrow:disabled {
+        opacity: .3;
+        cursor: default;
+    }
+
+    .carousel-indicators {
+        position: absolute;
+        bottom: 10px;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+        z-index: 2;
+    }
+
+    .carousel-dot {
+        width: 7px;
+        height: 7px;
+        border: none;
+        border-radius: 50%;
+        background: rgba(255,255,255,.5);
+        padding: 0;
+        cursor: pointer;
+    }
+
+    .carousel-dot.active {
+        background: white;
+        transform: scale(1.25);
+    }
+
+    .post-social-actions {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        flex-wrap: wrap;
+        padding-top: 13px;
+        border-top: 1px solid #eee;
+        margin-top: 14px;
+    }
+
+    .social-form {
+        margin: 0;
+    }
+
+    .social-button {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        padding: 7px 4px;
+        color: #444;
+    }
+
+    .social-button:hover {
+        color: #2563eb;
+    }
+
+    .social-count {
+        color: #777;
+        font-size: 13px;
+    }
+
+    .post-actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-top: 12px;
+        flex-wrap: wrap;
+    }
+
+    .post-actions a,
+    .post-actions button {
+        text-decoration: none;
+        font-size: 13px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        color: #555;
+        padding: 5px 0;
+    }
+
+    .post-actions a:hover {
+        color: #2563eb;
+    }
+
+    .delete-post-button {
+        color: #dc2626 !important;
+    }
+
+    .post-error {
+        color: #dc2626;
+        font-size: 13px;
+        margin-top: 8px;
+    }
+
+    .empty-feed {
+        text-align: center;
+        color: #777;
+        padding: 45px 15px;
+        background: white;
+        border-radius: 12px;
+    }
+
+    @media(max-width: 600px) {
+        .feed-container {
+            padding: 0 10px;
+            margin-top: 18px;
+        }
+
+        .post-card,
+        .post-composer {
+            padding: 14px;
+        }
+
+        .carousel-slide img,
+        .carousel-slide video {
+            max-height: 380px;
+        }
+    }
 </style>
 {% endblock %}
 
 
 {% block content %}
-<div class="feed-wrap">
+<div class="feed-container">
 
-    <section class="composer">
-        <h1>Home</h1>
+    {% if request.user.is_authenticated %}
+    <!-- Create post -->
+    <section class="post-composer">
 
-        <form method="post" enctype="multipart/form-data">
+        <h2 style="margin-top:0;">Create a post</h2>
+
+        <form method="POST"
+              enctype="multipart/form-data"
+              id="post-form">
+
             {% csrf_token %}
 
             {{ form.body }}
 
-            {% for error in form.body.errors %}
-                <div class="form-errors">{{ error }}</div>
-            {% endfor %}
+            {% if form.body.errors %}
+                <div class="post-error">
+                    {{ form.body.errors }}
+                </div>
+            {% endif %}
 
-            {% for error in form.media_files.errors %}
-                <div class="form-errors">{{ error }}</div>
-            {% endfor %}
+            {% if form.non_field_errors %}
+                <div class="post-error">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
 
-            {% for error in form.non_field_errors %}
-                <div class="form-errors">{{ error }}</div>
-            {% endfor %}
+            {% if form.media_files.errors %}
+                <div class="post-error">
+                    {{ form.media_files.errors }}
+                </div>
+            {% endif %}
 
-            <label class="media-picker" for="{{ form.media_files.id_for_label }}">
-                <strong>Add photos or videos</strong>
-            </label>
+            <div id="media-preview" class="media-preview"></div>
 
-            {{ form.media_files }}
+            <div class="composer-bottom">
 
-            <p class="media-help">
-                Maximum 10 images/videos combined · 50 MB per file
-            </p>
+                <div>
+                    <label for="id_media_files" class="file-label">
+                        📷 Add photos / videos
+                    </label>
 
-            <div id="media-preview" class="media-carousel"></div>
+                    {{ form.media_files }}
 
-            <button type="submit" class="post-submit">Post</button>
+                    <small id="file-count"></small>
+                </div>
+
+                <button type="submit" class="publish-button">
+                    Publish
+                </button>
+
+            </div>
+
         </form>
     </section>
+    {% endif %}
+    
 
 
+    <!-- Feed posts -->
     {% for post in posts %}
+
         <article class="post-card">
 
-            <header class="post-header">
-                <div>
-                    <div class="post-author">{{ post.author.username }}</div>
-                    <div class="post-date">
-                        {{ post.created_at|date:"M j, Y · g:i A" }}
-                    </div>
-                </div>
-            </header>
+            <div class="post-header">
 
+                <div class="post-author">
+
+                    <div class="post-avatar">
+                        {% if post.author.profile.avatar %}
+                            <img src="{{ post.author.profile.avatar.url }}"
+                                 alt="Profile picture">
+                        {% else %}
+                            {{ post.author.username|first|upper }}
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <a href="{% url 'accounts:profile' post.author.username %}">
+                            {{ post.author.username }}
+                        </a>
+
+                        <span class="post-date">
+                            {{ post.created_at|timesince }} ago
+                            {% if post.updated_at > post.created_at %}
+                                · Edited
+                            {% endif %}
+                        </span>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Post text -->
             {% if post.body %}
                 <div class="post-body">
                     {{ post.body|linebreaksbr }}
                 </div>
             {% endif %}
 
-            {% if post.media.all %}
-                <div class="media-carousel" data-carousel>
-                    <div class="carousel-track">
-                        {% for item in post.media.all %}
-                            <div class="carousel-slide">
-                                {% if item.media_type == "image" %}
-                                    <img
-                                        src="{{ item.file.url }}"
-                                        alt="Post image"
-                                        loading="lazy"
-                                    >
-                                {% else %}
-                                    <video controls preload="metadata">
-                                        <source src="{{ item.file.url }}">
-                                    </video>
-                                {% endif %}
+
+            <!-- Media carousel -->
+            {% with media_list=post.media.all %}
+                {% if media_list %}
+
+                    <div class="media-carousel" data-carousel>
+
+                        <div class="carousel-track">
+
+                            {% for media in media_list %}
+                                <div class="carousel-slide">
+
+                                    {% if media.media_type == "image" %}
+                                        <img src="{{ media.file.url }}"
+                                             alt="Post image"
+                                             loading="lazy">
+                                    {% else %}
+                                        <video controls preload="metadata">
+                                            <source src="{{ media.file.url }}">
+                                            Your browser does not support video.
+                                        </video>
+                                    {% endif %}
+
+                                </div>
+                            {% endfor %}
+
+                        </div>
+
+                        {% if media_list|length > 1 %}
+                            <button type="button"
+                                    class="carousel-arrow carousel-prev"
+                                    aria-label="Previous media">
+                                &#8249;
+                            </button>
+
+                            <button type="button"
+                                    class="carousel-arrow carousel-next"
+                                    aria-label="Next media">
+                                &#8250;
+                            </button>
+
+                            <div class="carousel-indicators">
+                                {% for media in media_list %}
+                                    <button type="button"
+                                            class="carousel-dot {% if forloop.first %}active{% endif %}"
+                                            aria-label="Go to media {{ forloop.counter }}">
+                                    </button>
+                                {% endfor %}
                             </div>
-                        {% endfor %}
+                        {% endif %}
+
                     </div>
 
-                    <button type="button"
-                            class="carousel-arrow carousel-prev"
-                            aria-label="Previous media">‹</button>
+                {% endif %}
+            {% endwith %}
 
-                    <button type="button"
-                            class="carousel-arrow carousel-next"
-                            aria-label="Next media">›</button>
 
-                    <div class="carousel-indicators"></div>
+            <!-- Like and comment actions -->
+            <div class="post-social-actions">
+
+                <form method="POST"
+                      action="{% url 'posts:toggle_like' post.id %}"
+                      class="social-form">
+
+                    {% csrf_token %}
+
+                    <input type="hidden"
+                           name="next"
+                           value="{{ request.get_full_path }}">
+
+                    <button type="submit" class="social-button">
+                        {% if post.is_liked %}
+                            ❤️ Unlike
+                        {% else %}
+                            🤍 Like
+                        {% endif %}
+                    </button>
+
+                </form>
+
+                <a href="{% url 'posts:post_detail' post.id %}#comments"
+                   class="social-button">
+                    💬 Comment
+                </a>
+
+                <span class="social-count">
+                    {{ post.likes_count }} likes
+                </span>
+
+                <span class="social-count">
+                    {{ post.comments_count }} comments
+                </span>
+
+            </div>
+
+
+            <!-- Post owner actions -->
+            {% if request.user == post.author %}
+                <div class="post-actions">
+
+                    <a href="{% url 'posts:edit_post' post.id %}">
+                        Edit post
+                    </a>
+
+                    <form method="POST"
+                          action="{% url 'posts:delete_post' post.id %}"
+                          onsubmit="return confirm('Are you sure you want to delete this post?');">
+
+                        {% csrf_token %}
+
+                        <button type="submit" class="delete-post-button">
+                            Delete post
+                        </button>
+
+                    </form>
+
                 </div>
             {% endif %}
 
-            <div class="post-actions">
-                <a href="{% url 'posts:post_detail' post.id %}">
-                    View post
-                </a>
-
-                {% if post.author_id == request.user.id %}
-                    <a href="{% url 'posts:edit_post' post.id %}">
-                        Edit
-                    </a>
-
-                    <form method="post"
-                          action="{% url 'posts:delete_post' post.id %}"
-                          onsubmit="return confirm('Delete this post permanently?');">
-                        {% csrf_token %}
-                        <button type="submit">Delete</button>
-                    </form>
-                {% endif %}
-            </div>
-
         </article>
+
     {% empty %}
-        <div class="post-card empty-feed">
-            No posts yet. Be the first to share something!
+
+        <div class="empty-feed">
+            <h3>No posts yet</h3>
+            <p>Be the first to share something!</p>
         </div>
+
     {% endfor %}
 
 </div>
@@ -317,58 +568,120 @@
 {% block extra_js %}
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+
+    // Multiple media preview
+    const fileInput = document.getElementById("id_media_files");
+    const preview = document.getElementById("media-preview");
+    const fileCount = document.getElementById("file-count");
+
+    if (fileInput) {
+        fileInput.style.display = "none";
+
+        fileInput.addEventListener("change", function () {
+            preview.innerHTML = "";
+
+            const files = Array.from(this.files);
+
+            fileCount.textContent = files.length
+                ? files.length + " file(s) selected"
+                : "";
+
+            if (files.length > 10) {
+                alert("You can upload a maximum of 10 files.");
+                this.value = "";
+                preview.innerHTML = "";
+                fileCount.textContent = "";
+                return;
+            }
+
+            files.forEach(function (file) {
+                const wrapper = document.createElement("div");
+                wrapper.className = "media-preview-item";
+
+                const url = URL.createObjectURL(file);
+                let element;
+
+                if (file.type.startsWith("image/")) {
+                    element = document.createElement("img");
+                    element.src = url;
+                } else if (file.type.startsWith("video/")) {
+                    element = document.createElement("video");
+                    element.src = url;
+                    element.controls = true;
+                } else {
+                    return;
+                }
+
+                element.onload = element.onerror = function () {
+                    URL.revokeObjectURL(url);
+                };
+
+                wrapper.appendChild(element);
+                preview.appendChild(wrapper);
+            });
+        });
+    }
+
+
+    // Carousel
     document.querySelectorAll("[data-carousel]").forEach(function (carousel) {
+
         const track = carousel.querySelector(".carousel-track");
-        const slides = Array.from(carousel.querySelectorAll(".carousel-slide"));
+        const slides = carousel.querySelectorAll(".carousel-slide");
         const prev = carousel.querySelector(".carousel-prev");
         const next = carousel.querySelector(".carousel-next");
-        const indicators = carousel.querySelector(".carousel-indicators");
+        const dots = carousel.querySelectorAll(".carousel-dot");
 
-        if (!track || !slides.length) return;
+        if (!track || slides.length <= 1) return;
 
-        let index = 0;
+        let currentIndex = 0;
 
-        slides.forEach(function (_, i) {
-            const dot = document.createElement("button");
-            dot.type = "button";
-            dot.className = "carousel-dot";
-            dot.setAttribute("aria-label", "Show media " + (i + 1));
-            dot.addEventListener("click", () => showSlide(i));
-            indicators.appendChild(dot);
-        });
+        function showSlide(index) {
+            currentIndex = Math.max(
+                0,
+                Math.min(index, slides.length - 1)
+            );
 
-        const dots = Array.from(indicators.children);
+            track.style.transform =
+                "translateX(-" + (currentIndex * 100) + "%)";
 
-        function showSlide(i) {
-            index = Math.max(0, Math.min(i, slides.length - 1));
-            track.style.transform = `translateX(-${index * 100}%)`;
+            if (prev) prev.disabled = currentIndex === 0;
+            if (next) next.disabled = currentIndex === slides.length - 1;
 
-            dots.forEach((dot, n) => {
-                dot.classList.toggle("active", n === index);
+            dots.forEach(function (dot, i) {
+                dot.classList.toggle("active", i === currentIndex);
             });
 
-            prev.disabled = index === 0;
-            next.disabled = index === slides.length - 1;
-
-            slides.forEach((slide, n) => {
-                if (n !== index) {
-                    const video = slide.querySelector("video");
-                    if (video) video.pause();
+            slides.forEach(function (slide, i) {
+                if (i !== currentIndex) {
+                    slide.querySelectorAll("video").forEach(function (video) {
+                        video.pause();
+                    });
                 }
             });
         }
 
-        prev.addEventListener("click", () => showSlide(index - 1));
-        next.addEventListener("click", () => showSlide(index + 1));
-
-        if (slides.length === 1) {
-            prev.hidden = true;
-            next.hidden = true;
-            indicators.hidden = true;
+        if (prev) {
+            prev.addEventListener("click", function () {
+                showSlide(currentIndex - 1);
+            });
         }
+
+        if (next) {
+            next.addEventListener("click", function () {
+                showSlide(currentIndex + 1);
+            });
+        }
+
+        dots.forEach(function (dot, i) {
+            dot.addEventListener("click", function () {
+                showSlide(i);
+            });
+        });
 
         showSlide(0);
     });
+
 });
 </script>
 {% endblock %}
